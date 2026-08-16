@@ -1,0 +1,85 @@
+@page "/students"
+@using BalighAcademy.Services
+@inject StudentService Svc
+
+<PageTitle>زبان‌آموزان | Students</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-4">زبان‌آموزان / Students</MudText>
+
+@if (!string.IsNullOrEmpty(_error))
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+}
+
+<MudPaper Elevation="2" Class="pa-4 mb-6">
+    <MudText Typo="Typo.subtitle1" Class="mb-3">ثبت‌نام زبان‌آموز جدید / New Student</MudText>
+    <MudGrid Spacing="3">
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField @bind-Value="_new.FirstName" Label="نام / First Name" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField @bind-Value="_new.LastName" Label="نام خانوادگی / Last Name" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField @bind-Value="_new.Mobile" Label="موبایل / Mobile" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudSelect @bind-Value="_new.Gender" Label="جنسیت / Gender">
+                <MudSelectItem Value="@("پسر / Boy")">پسر / Boy</MudSelectItem>
+                <MudSelectItem Value="@("دختر / Girl")">دختر / Girl</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" Class="mt-4" StartIcon="@Icons.Material.Filled.Save">ذخیره / Save</MudButton>
+</MudPaper>
+
+<MudTable Items="_students" Hover="true" Elevation="2" Striped="true">
+    <HeaderContent>
+        <MudTh>نام / First</MudTh>
+        <MudTh>خانوادگی / Last</MudTh>
+        <MudTh>موبایل / Mobile</MudTh>
+        <MudTh>جنسیت / Gender</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.FirstName</MudTd>
+        <MudTd>@context.LastName</MudTd>
+        <MudTd>@context.Mobile</MudTd>
+        <MudTd>@context.Gender</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<StudentDto> _students = new();
+    private StudentDto _new = new();
+    private string _error = "";
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        try
+        {
+            _students = await Svc.GetAll();
+            _error = "";
+        }
+        catch (Exception ex)
+        {
+            _error = "خطا در ارتباط با سرور / Server error: " + ex.Message;
+        }
+    }
+
+    private async Task Save()
+    {
+        if (string.IsNullOrWhiteSpace(_new.FirstName) || string.IsNullOrWhiteSpace(_new.LastName)) return;
+        try
+        {
+            await Svc.Create(_new);
+            _new = new();
+            await Load();
+        }
+        catch (Exception ex)
+        {
+            _error = "خطا در ذخیره / Save error: " + ex.Message;
+        }
+    }
+}
