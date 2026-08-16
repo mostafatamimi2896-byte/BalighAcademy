@@ -8,6 +8,8 @@ namespace BalighAcademy.Services
         public int Id { get; set; }
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
+        public string FirstNameEn { get; set; } = "";
+        public string LastNameEn { get; set; } = "";
         public string? Mobile { get; set; }
         public string? Phone { get; set; }
         public string? Email { get; set; }
@@ -30,9 +32,29 @@ namespace BalighAcademy.Services
         }
 
         public async Task<List<StudentDto>> GetAll()
-            => await _http.GetFromJsonAsync<List<StudentDto>>(_base + "/api/students") ?? new List<StudentDto>();
+        {
+            try
+            {
+                return await _http.GetFromJsonAsync<List<StudentDto>>(_base + "/api/students") ?? new List<StudentDto>();
+            }
+            catch
+            {
+                await Task.Delay(4000);
+                return await _http.GetFromJsonAsync<List<StudentDto>>(_base + "/api/students") ?? new List<StudentDto>();
+            }
+        }
 
         public async Task Create(StudentDto s)
-            => await _http.PostAsJsonAsync(_base + "/api/students", s);
+        {
+            try
+            {
+                await _http.PostAsJsonAsync(_base + "/api/students", s);
+            }
+            catch
+            {
+                await Task.Delay(4000);
+                await _http.PostAsJsonAsync(_base + "/api/students", s);
+            }
+        }
     }
 }
