@@ -21,7 +21,13 @@
             <MudTextField @bind-Value="_new.LastName" Label="نام خانوادگی / Last Name" />
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
-            <MudTextField @bind-Value="_new.Mobile" Label="موبایل / Mobile" />
+            <MudTextField @bind-Value="_new.FirstNameEn" Label="نام (انگلیسی) / First Name (EN)" Style="direction:ltr; text-align:left" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField @bind-Value="_new.LastNameEn" Label="نام خانوادگی (انگلیسی) / Last Name (EN)" Style="direction:ltr; text-align:left" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField @bind-Value="_new.Mobile" Label="موبایل / Mobile" Style="direction:ltr; text-align:left" />
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
             <MudSelect @bind-Value="_new.Gender" Label="جنسیت / Gender">
@@ -37,12 +43,16 @@
     <HeaderContent>
         <MudTh>نام / First</MudTh>
         <MudTh>خانوادگی / Last</MudTh>
+        <MudTh>نام EN / First (EN)</MudTh>
+        <MudTh>خانوادگی EN / Last (EN)</MudTh>
         <MudTh>موبایل / Mobile</MudTh>
         <MudTh>جنسیت / Gender</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd>@context.FirstName</MudTd>
         <MudTd>@context.LastName</MudTd>
+        <MudTd>@context.FirstNameEn</MudTd>
+        <MudTd>@context.LastNameEn</MudTd>
         <MudTd>@context.Mobile</MudTd>
         <MudTd>@context.Gender</MudTd>
     </RowTemplate>
