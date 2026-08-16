@@ -3,7 +3,6 @@ using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// دیتابیس: روی Render با Postgres / روی ویندوز با SQL Server
 var pg = Environment.GetEnvironmentVariable("DATABASE_URL");
 if (!string.IsNullOrEmpty(pg))
 {
@@ -21,6 +20,7 @@ if (!string.IsNullOrEmpty(pg))
         Database = dbname,
         Username = user,
         Password = pass,
+        Timeout = 10,
         SslMode = SslMode.Prefer,
         TrustServerCertificate = true
     };
@@ -37,28 +37,24 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAn
 
 var app = builder.Build();
 
-// ساخت جدول‌ها — ولی اگر دیتابیس خطا داد، برنامه خاموش نشود
-using (var scope = app.Services.CreateScope())
-{
-    try
-    {
-        scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("DB init error: " + ex.Message);
-    }
-}
-
 app.UseCors();
 
 app.MapGet("/", () => "✅ Baligh Academy API is running!");
 
+app.MapGet("/api/dbinfo", () =>
+{
+    var p = Environment.GetEnvironmentVariable("DATABASE_URL");
+    if (string.IsNullOrEmpty(p)) return Results.Ok(new { set = false });
+    var u = new Uri(p);
+    return Results.Ok(new { set = true, host = u.Host, port = u.Port, db = u.AbsolutePath.TrimStart('/') });
+});
+
 app.MapGet("/api/health", async (AppDbContext db) =>
 {
+    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
     try
     {
-        var ok = await db.Database.CanConnectAsync();
+        var ok = await db.Database.CanConnectAsync(cts.Token);
         return Results.Ok(new { ok = true, db = ok });
     }
     catch (Exception ex)
@@ -74,6 +70,21 @@ app.MapPost("/api/students", async (AppDbContext db, Student s) =>
     db.Students.Add(s);
     await db.SaveChangesAsync();
     return Results.Created($"/api/students/{s.Id}", s);
+});
+
+// اول پورت باز می‌شود؛ دیتابیس در پس‌زمینه ساخته می‌شود
+_ = Task.Run(async () =>
+{
+    await Task.Delay(2000);
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("DB init error: " + ex.Message);
+    }
 });
 
 app.Run();
