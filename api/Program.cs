@@ -73,13 +73,13 @@ app.MapGet("/api/admin/reset", async (AppDbContext db) =>
 app.MapGet("/api/students", async (AppDbContext db, string? q) =>
 {
     var list = db.Students.AsQueryable();
-    if (!string.IsNullOrWhiteSpace(q))
+        if (!string.IsNullOrWhiteSpace(q))
     {
-        q = q.Trim();
-        list = list.Where(s => s.FirstName.Contains(q) || s.LastName.Contains(q)
-            || s.StudentCode.Contains(q)
-            || s.FirstNameEn.Contains(q) || s.LastNameEn.Contains(q)
-            || (s.Mobile != null && s.Mobile.Contains(q)));
+        q = q.Trim().ToLower();
+        list = list.Where(s => s.FirstName.ToLower().Contains(q) || s.LastName.ToLower().Contains(q)
+            || s.StudentCode.ToLower().Contains(q)
+            || s.FirstNameEn.ToLower().Contains(q) || s.LastNameEn.ToLower().Contains(q)
+            || (s.Mobile != null && s.Mobile.ToLower().Contains(q)));
     }
     return await list.OrderByDescending(s => s.Id).ToListAsync();
 });
