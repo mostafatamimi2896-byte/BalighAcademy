@@ -163,4 +163,38 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     public DbSet<Student> Students => Set<Student>();
+    public DbSet<Term> Terms => Set<Term>();
+    public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+    public DbSet<Payment> Payments => Set<Payment>();
+}
+
+public class Term
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = "";
+    public string StartDate { get; set; } = "";
+    public string EndDate { get; set; } = "";
+    public bool IsCurrent { get; set; }
+}
+
+public class Enrollment
+{
+    public int Id { get; set; }
+    public int StudentId { get; set; }
+    public int TermId { get; set; }
+    public string ClassName { get; set; } = "";
+    public string Level { get; set; } = "";
+    public string Result { get; set; } = "در حال برگزاری / Ongoing";
+    public double Score { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+public class Payment
+{
+    public int Id { get; set; }
+    public int StudentId { get; set; }
+    public string Date { get; set; } = "";
+    public long Amount { get; set; }
+    public string Kind { get; set; } = "شهریه / Tuition";
+    public string Note { get; set; } = "";
 }
