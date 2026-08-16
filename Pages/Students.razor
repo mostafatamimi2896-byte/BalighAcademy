@@ -14,53 +14,71 @@
 <MudPaper Elevation="2" Class="pa-4 mb-6">
     <MudText Typo="Typo.subtitle1" Class="mb-3">ثبت‌نام زبان‌آموز جدید / New Student</MudText>
     <MudGrid Spacing="3">
-        <MudItem xs="12" sm="6" md="3">
-            <MudTextField @bind-Value="_new.FirstName" Label="نام / First Name" />
-        </MudItem>
-        <MudItem xs="12" sm="6" md="3">
-            <MudTextField @bind-Value="_new.LastName" Label="نام خانوادگی / Last Name" />
-        </MudItem>
-        <MudItem xs="12" sm="6" md="3">
-            <MudTextField @bind-Value="_new.FirstNameEn" Label="نام (انگلیسی) / First Name (EN)" Style="direction:ltr; text-align:left" />
-        </MudItem>
-        <MudItem xs="12" sm="6" md="3">
-            <MudTextField @bind-Value="_new.LastNameEn" Label="نام خانوادگی (انگلیسی) / Last Name (EN)" Style="direction:ltr; text-align:left" />
-        </MudItem>
-        <MudItem xs="12" sm="6" md="3">
-            <MudTextField @bind-Value="_new.Mobile" Label="موبایل / Mobile" Style="direction:ltr; text-align:left" />
-        </MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudTextField @bind-Value="_new.FirstName" Label="نام / First Name" /></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudTextField @bind-Value="_new.LastName" Label="نام خانوادگی / Last Name" /></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudTextField @bind-Value="_new.FirstNameEn" Label="نام (انگلیسی) / First (EN)" Style="direction:ltr; text-align:left" /></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudTextField @bind-Value="_new.LastNameEn" Label="نام خانوادگی (انگلیسی) / Last (EN)" Style="direction:ltr; text-align:left" /></MudItem>
         <MudItem xs="12" sm="6" md="3">
             <MudSelect @bind-Value="_new.Gender" Label="جنسیت / Gender">
                 <MudSelectItem Value="@("پسر / Boy")">پسر / Boy</MudSelectItem>
                 <MudSelectItem Value="@("دختر / Girl")">دختر / Girl</MudSelectItem>
             </MudSelect>
         </MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudTextField @bind-Value="_new.BirthDate" Label="تاریخ تولد / Birth Date (1390-01-01)" Style="direction:ltr; text-align:left" /></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudTextField @bind-Value="_new.Mobile" Label="موبایل / Mobile" Style="direction:ltr; text-align:left" /></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudTextField @bind-Value="_new.Phone" Label="تلفن / Phone" Style="direction:ltr; text-align:left" /></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudTextField @bind-Value="_new.Email" Label="ایمیل / Email" Style="direction:ltr; text-align:left" /></MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudSelect @bind-Value="_new.QuotaType" Label="نوع سهمیه / Quota">
+                <MudSelectItem Value="@("عادی / Regular")">عادی / Regular</MudSelectItem>
+                <MudSelectItem Value="@("ایثارگر / Veteran Family")">ایثارگر / Veteran Family</MudSelectItem>
+                <MudSelectItem Value="@("بنیاد / Foundation")">بنیاد / Foundation</MudSelectItem>
+                <MudSelectItem Value="@("خانواده / Family")">خانواده / Family</MudSelectItem>
+                <MudSelectItem Value="@("بورسیه / Scholarship")">بورسیه / Scholarship</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudSelect @bind-Value="_new.Status" Label="وضعیت / Status">
+                <MudSelectItem Value="@("فعال / Active")">فعال / Active</MudSelectItem>
+                <MudSelectItem Value="@("غیرفعال / Inactive")">غیرفعال / Inactive</MudSelectItem>
+                <MudSelectItem Value="@("انصراف / Withdrawn")">انصراف / Withdrawn</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12"><MudTextField @bind-Value="_new.Address" Label="آدرس / Address" /></MudItem>
+        <MudItem xs="12"><MudTextField @bind-Value="_new.Notes" Label="توضیحات / Notes" Lines="2" /></MudItem>
     </MudGrid>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" Class="mt-4" StartIcon="@Icons.Material.Filled.Save">ذخیره / Save</MudButton>
 </MudPaper>
 
-<MudTable Items="_students" Hover="true" Elevation="2" Striped="true">
-    <HeaderContent>
-        <MudTh>نام / First</MudTh>
-        <MudTh>خانوادگی / Last</MudTh>
-        <MudTh>نام EN / First (EN)</MudTh>
-        <MudTh>خانوادگی EN / Last (EN)</MudTh>
-        <MudTh>موبایل / Mobile</MudTh>
-        <MudTh>جنسیت / Gender</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd>@context.FirstName</MudTd>
-        <MudTd>@context.LastName</MudTd>
-        <MudTd>@context.FirstNameEn</MudTd>
-        <MudTd>@context.LastNameEn</MudTd>
-        <MudTd>@context.Mobile</MudTd>
-        <MudTd>@context.Gender</MudTd>
-    </RowTemplate>
-</MudTable>
+<MudPaper Elevation="2" Class="pa-4">
+    <MudTextField @bind-Value="_q" Placeholder="جستجو: نام، کد، موبایل... / Search" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="Search" Immediate="true" OnKeyDown="OnKey" Class="mb-4" />
+
+    <MudTable Items="_students" Hover="true" Elevation="2" Striped="true">
+        <HeaderContent>
+            <MudTh>کد / Code</MudTh>
+            <MudTh>نام / First</MudTh>
+            <MudTh>خانوادگی / Last</MudTh>
+            <MudTh>نام EN / First (EN)</MudTh>
+            <MudTh>موبایل / Mobile</MudTh>
+            <MudTh>سهمیه / Quota</MudTh>
+            <MudTh>وضعیت / Status</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.StudentCode</MudTd>
+            <MudTd>@context.FirstName</MudTd>
+            <MudTd>@context.LastName</MudTd>
+            <MudTd>@context.FirstNameEn</MudTd>
+            <MudTd>@context.Mobile</MudTd>
+            <MudTd>@context.QuotaType</MudTd>
+            <MudTd>@context.Status</MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
 
 @code {
     private List<StudentDto> _students = new();
     private StudentDto _new = new();
+    private string _q = "";
     private string _error = "";
 
     protected override async Task OnInitializedAsync() => await Load();
@@ -69,13 +87,20 @@
     {
         try
         {
-            _students = await Svc.GetAll();
+            _students = await Svc.GetAll(_q);
             _error = "";
         }
         catch (Exception ex)
         {
             _error = "خطا در ارتباط با سرور / Server error: " + ex.Message;
         }
+    }
+
+    private async Task Search() => await Load();
+
+    private async Task OnKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await Load();
     }
 
     private async Task Save()
