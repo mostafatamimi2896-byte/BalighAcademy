@@ -121,7 +121,54 @@ app.MapDelete("/api/students/{id:int}", async (AppDbContext db, int id) =>
     await db.SaveChangesAsync();
     return Results.Ok(new { deleted = true });
 });
+app.MapGet("/api/terms", async (AppDbContext db) => await db.Terms.OrderByDescending(t => t.Id).ToListAsync());
+app.MapPost("/api/terms", async (AppDbContext db, Term t) => { db.Terms.Add(t); await db.SaveChangesAsync(); return Results.Ok(t); });
 
+app.MapGet("/api/students/{id:int}/enrollments", async (AppDbContext db, int id) =>
+    await db.Enrollments.Where(e => e.StudentId == id).ToListAsync());
+app.MapPost("/api/students/{id:int}/enrollments", async (AppDbContext db, int id, Enrollment e) =>
+{
+    e.StudentId = id;
+    db.Enrollments.Add(e);
+    await db.SaveChangesAsync();
+    return Results.Ok(e);
+});
+app.MapDelete("/api/enrollments/{id:int}", async (AppDbContext db, int id) =>
+{
+    var e = await db.Enrollments.FindAsync(id);
+    if (e is null) return Results.NotFound();
+    db.Enrollments.Remove(e);
+    await db.SaveChangesAsync();
+    return Results.Ok(new { deleted = true });
+});
+
+app.MapGet("/api/students/{id:int}/payments", async (AppDbContext db, int id) =>
+    await db.Payments.Where(p => p.StudentId == id).ToListAsync());
+app.MapPost("/api/students/{id:int}/payments", async (AppDbContext db, int id, Payment p) =>
+{
+    p.StudentId = id;
+    db.Payments.Add(p);
+    await db.SaveChangesAsync();
+    return Results.Ok(p);
+});
+app.MapDelete("/api/payments/{id:int}", async (AppDbContext db, int id) =>
+{
+    var p = await db.Payments.FindAsync(id);
+    if (p is null) return Results.NotFound();
+    db.Payments.Remove(p);
+    await db.SaveChangesAsync();
+    return Results.Ok(new { deleted = true });
+});
+
+app.MapGet("/api/students/{id:int}/finance", async (AppDbContext db, int id) =>
+{
+    var pays = await db.Payments.Where(p => p.StudentId == id).ToListAsync();
+    long tuition = pays.Where(p => p.Kind.StartsWith("شهریه")).Sum(p => p.Amount);
+    long paid = pays.Where(p => p.Kind.StartsWith("پرداخت")).Sum(p => p.Amount);
+    long discount = pays.Where(p => p.Kind.StartsWith("تخفیف")).Sum(p => p.Amount);
+    long balance = tuition - paid - discount;
+    return Results.Ok(new { tuition, paid, discount, balance, debtor = balance > 0 });
+});
 _ = Task.Run(async () =>
 {
     await Task.Delay(2000);
