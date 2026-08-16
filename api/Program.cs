@@ -63,6 +63,14 @@ app.MapGet("/api/health", async (AppDbContext db) =>
     }
 });
 
+// فقط برای دوران ساخت و تست: بازسازی جدول‌ها با ساختار جدید
+app.MapGet("/api/admin/reset", async (AppDbContext db) =>
+{
+    await db.Database.EnsureDeletedAsync();
+    await db.Database.EnsureCreatedAsync();
+    return Results.Ok(new { reset = true });
+});
+
 app.MapGet("/api/students", async (AppDbContext db) => await db.Students.ToListAsync());
 
 app.MapPost("/api/students", async (AppDbContext db, Student s) =>
@@ -72,7 +80,6 @@ app.MapPost("/api/students", async (AppDbContext db, Student s) =>
     return Results.Created($"/api/students/{s.Id}", s);
 });
 
-// اول پورت باز می‌شود؛ دیتابیس در پس‌زمینه ساخته می‌شود
 _ = Task.Run(async () =>
 {
     await Task.Delay(2000);
@@ -94,6 +101,8 @@ public class Student
     public int Id { get; set; }
     public string FirstName { get; set; } = "";
     public string LastName { get; set; } = "";
+    public string FirstNameEn { get; set; } = "";
+    public string LastNameEn { get; set; } = "";
     public string? Mobile { get; set; }
     public string? Phone { get; set; }
     public string? Email { get; set; }
