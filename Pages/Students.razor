@@ -64,7 +64,7 @@
             <MudTh>وضعیت / Status</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd>@context.StudentCode</MudTd>
+            <MudTd><MudLink Href="@($"/students/{context.Id}")">@context.StudentCode</MudLink></MudTd>
             <MudTd>@context.FirstName</MudTd>
             <MudTd>@context.LastName</MudTd>
             <MudTd>@context.FirstNameEn</MudTd>
