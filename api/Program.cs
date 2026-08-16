@@ -10,7 +10,8 @@ if (!string.IsNullOrEmpty(pg))
     var user = Uri.UnescapeDataString(uri.UserInfo.Split(':')[0]);
     var pass = Uri.UnescapeDataString(uri.UserInfo.Split(':')[1]);
     var dbname = uri.AbsolutePath.TrimStart('/');
-    var connStr = $"Host={uri.Host};Port={uri.Port};Database={dbname};Username={user};Password={pass}";
+       var port = uri.Port > 0 ? uri.Port : 5432;
+    var connStr = $"Host={uri.Host};Port={port};Database={dbname};Username={user};Password={pass}";
     builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connStr));
 }
 else
