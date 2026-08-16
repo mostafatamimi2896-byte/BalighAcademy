@@ -76,7 +76,9 @@ app.MapGet("/api/students", async (AppDbContext db, string? q) =>
         if (!string.IsNullOrWhiteSpace(q))
     {
         q = q.Trim().ToLower();
-        list = list.Where(s => s.FirstName.ToLower().Contains(q) || s.LastName.ToLower().Contains(q)
+                list = list.Where(s => s.FirstName.ToLower().Contains(q) || s.LastName.ToLower().Contains(q)
+            || (s.FirstName + " " + s.LastName).ToLower().Contains(q)
+            || (s.FirstNameEn + " " + s.LastNameEn).ToLower().Contains(q)
             || s.StudentCode.ToLower().Contains(q)
             || s.FirstNameEn.ToLower().Contains(q) || s.LastNameEn.ToLower().Contains(q)
             || (s.Mobile != null && s.Mobile.ToLower().Contains(q)));
