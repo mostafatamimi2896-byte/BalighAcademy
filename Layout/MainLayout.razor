@@ -1,0 +1,57 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@_theme" IsDarkMode="false" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6">آکادمی زبان بلیغ</MudText>
+        <MudText Typo="Typo.body2" Class="mx-3" Style="opacity:0.85">Baligh Language Academy</MudText>
+        <MudSpacer />
+        <MudText Typo="Typo.caption">Empowering Global Communicators</MudText>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1" Variant="DrawerVariant.Persistent">
+        <MudNavMenu>
+            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">خانه / Home</MudNavLink>
+            <MudNavLink Href="students" Icon="@Icons.Material.Filled.People">زبان‌آموزان / Students</MudNavLink>
+            <MudNavLink Href="teachers" Icon="@Icons.Material.Filled.School">اساتید / Teachers</MudNavLink>
+            <MudNavLink Href="classes" Icon="@Icons.Material.Filled.Class">کلاس‌ها / Classes</MudNavLink>
+            <MudNavLink Href="finance" Icon="@Icons.Material.Filled.Payments">امور مالی / Finance</MudNavLink>
+            <MudNavLink Href="reports" Icon="@Icons.Material.Filled.BarChart">گزارش‌ها / Reports</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="my-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
+    private readonly MudTheme _theme = new()
+    {
+        Palette = new Palette
+        {
+            Primary = "#42A5F5",
+            Secondary = "#26C6DA",
+            AppbarBackground = "#1E88E5",
+            Background = "#F5F7FA",
+            Surface = "#FFFFFF",
+            TextPrimary = "#263238"
+        },
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = new[] { "Vazirmatn", "Segoe UI", "Tahoma", "sans-serif" }
+            }
+        }
+    };
+}
