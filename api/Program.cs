@@ -63,7 +63,6 @@ app.MapGet("/api/health", async (AppDbContext db) =>
     }
 });
 
-// فقط برای دوران ساخت و تست: بازسازی جدول‌ها با ساختار جدید
 app.MapGet("/api/admin/reset", async (AppDbContext db) =>
 {
     await db.Database.EnsureDeletedAsync();
@@ -71,13 +70,56 @@ app.MapGet("/api/admin/reset", async (AppDbContext db) =>
     return Results.Ok(new { reset = true });
 });
 
-app.MapGet("/api/students", async (AppDbContext db) => await db.Students.ToListAsync());
+app.MapGet("/api/students", async (AppDbContext db, string? q) =>
+{
+    var list = db.Students.AsQueryable();
+    if (!string.IsNullOrWhiteSpace(q))
+    {
+        q = q.Trim();
+        list = list.Where(s => s.FirstName.Contains(q) || s.LastName.Contains(q)
+            || s.StudentCode.Contains(q)
+            || s.FirstNameEn.Contains(q) || s.LastNameEn.Contains(q)
+            || (s.Mobile != null && s.Mobile.Contains(q)));
+    }
+    return await list.OrderByDescending(s => s.Id).ToListAsync();
+});
+
+app.MapGet("/api/students/{id:int}", async (AppDbContext db, int id) =>
+    await db.Students.FindAsync(id) is Student s ? Results.Ok(s) : Results.NotFound());
 
 app.MapPost("/api/students", async (AppDbContext db, Student s) =>
 {
     db.Students.Add(s);
     await db.SaveChangesAsync();
+    if (string.IsNullOrEmpty(s.StudentCode))
+    {
+        s.StudentCode = $"BA-{1000 + s.Id}";
+        await db.SaveChangesAsync();
+    }
     return Results.Created($"/api/students/{s.Id}", s);
+});
+
+app.MapPut("/api/students/{id:int}", async (AppDbContext db, int id, Student input) =>
+{
+    var s = await db.Students.FindAsync(id);
+    if (s is null) return Results.NotFound();
+    s.FirstName = input.FirstName; s.LastName = input.LastName;
+    s.FirstNameEn = input.FirstNameEn; s.LastNameEn = input.LastNameEn;
+    s.Gender = input.Gender; s.BirthDate = input.BirthDate;
+    s.Mobile = input.Mobile; s.Phone = input.Phone; s.Email = input.Email;
+    s.Address = input.Address; s.Notes = input.Notes;
+    s.PhotoBase64 = input.PhotoBase64; s.QuotaType = input.QuotaType; s.Status = input.Status;
+    await db.SaveChangesAsync();
+    return Results.Ok(s);
+});
+
+app.MapDelete("/api/students/{id:int}", async (AppDbContext db, int id) =>
+{
+    var s = await db.Students.FindAsync(id);
+    if (s is null) return Results.NotFound();
+    db.Students.Remove(s);
+    await db.SaveChangesAsync();
+    return Results.Ok(new { deleted = true });
 });
 
 _ = Task.Run(async () =>
@@ -99,17 +141,21 @@ app.Run();
 public class Student
 {
     public int Id { get; set; }
+    public string StudentCode { get; set; } = "";
     public string FirstName { get; set; } = "";
     public string LastName { get; set; } = "";
     public string FirstNameEn { get; set; } = "";
     public string LastNameEn { get; set; } = "";
+    public string? Gender { get; set; }
+    public string? BirthDate { get; set; }
     public string? Mobile { get; set; }
     public string? Phone { get; set; }
     public string? Email { get; set; }
-    public string? Gender { get; set; }
-    public string? BirthDate { get; set; }
     public string? Address { get; set; }
     public string? Notes { get; set; }
+    public string? PhotoBase64 { get; set; }
+    public string QuotaType { get; set; } = "عادی / Regular";
+    public string Status { get; set; } = "فعال / Active";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
