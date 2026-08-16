@@ -5,11 +5,20 @@ var builder = WebApplication.CreateBuilder(args);
 // دیتابیس: روی Render با Postgres / روی ویندوز با SQL Server
 var pg = Environment.GetEnvironmentVariable("DATABASE_URL");
 if (!string.IsNullOrEmpty(pg))
-    builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(pg));
+{
+    var uri = new Uri(pg);
+    var user = Uri.UnescapeDataString(uri.UserInfo.Split(':')[0]);
+    var pass = Uri.UnescapeDataString(uri.UserInfo.Split(':')[1]);
+    var dbname = uri.AbsolutePath.TrimStart('/');
+    var connStr = $"Host={uri.Host};Port={uri.Port};Database={dbname};Username={user};Password={pass}";
+    builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connStr));
+}
 else
+{
     builder.Services.AddDbContext<AppDbContext>(o =>
         o.UseSqlServer(builder.Configuration.GetConnectionString("Default")
             ?? "Server=localhost;Database=BalighAcademy;Trusted_Connection=True;TrustServerCertificate=True;"));
+}
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
