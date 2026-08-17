@@ -17,4 +17,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: BalighDesktop
-          path: desktop\bin\Release\net48\BalighDesktop.exe
+          path: desktop\bin\Release\net48\
