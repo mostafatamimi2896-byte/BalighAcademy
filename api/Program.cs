@@ -149,6 +149,7 @@ app.MapGet("/api/students/{id:int}/payments", async (AppDbContext db, int id) =>
 app.MapPost("/api/students/{id:int}/payments", async (AppDbContext db, int id, Payment p) =>
 {
     p.StudentId = id;
+    p.VoucherNo = (await db.Payments.MaxAsync(x => (int?)x.VoucherNo) ?? 1000) + 1;
     db.Payments.Add(p);
     await db.SaveChangesAsync();
     return Results.Ok(p);
