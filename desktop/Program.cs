@@ -102,24 +102,90 @@ namespace BalighDesktop
             await Program.Http.PostAsync(Program.ApiBase + $"/api/students/{id}/payments", body);
         }
     }
-    public class ToolsForm : Form
+
+    public class ShineButton : Button
     {
-        public ToolsForm()
+        bool _hov;
+        public ShineButton()
         {
-            Text = "ابزارها";
-            Width = 600; Height = 400;
-            RightToLeft = RightToLeft.Yes;
-            Font = new Font("Tahoma", 10);
-            BackColor = Color.FromArgb(235, 243, 254);
-            var flow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.LeftToRight, Padding = new Padding(20) };
-            foreach (var n in new[] { "پشتیبان‌گیری", "بازیابی اطلاعات", "ثبت برنامه", "درباره ما" })
+            FlatStyle = FlatStyle.Flat;
+            FlatAppearance.BorderSize = 0;
+            BackColor = Color.Transparent;
+            ForeColor = Color.SteelBlue;
+            Font = new Font("Tahoma", 10, FontStyle.Bold);
+            Cursor = Cursors.Hand;
+            MouseEnter += (s, e) => { _hov = true; Invalidate(); };
+            MouseLeave += (s, e) => { _hov = false; Invalidate(); };
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            var rect = new Rectangle(1, 1, Width - 3, Height - 3);
+            using (var path = RoundRect(rect, 10))
             {
-                var b = new Button { Text = n, Width = 160, Height = 55, Margin = new Padding(6), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.SteelBlue, Font = new Font("Tahoma", 10, FontStyle.Bold) };
-                b.FlatAppearance.BorderColor = Color.SteelBlue;
-                b.Click += (s, e) => MessageBox.Show("به‌زودی.", n);
-                flow.Controls.Add(b);
+                using (var br = new System.Drawing.Drawing2D.LinearGradientBrush(rect,
+                    _hov ? Color.FromArgb(255, 255, 255) : Color.FromArgb(245, 250, 255),
+                    _hov ? Color.FromArgb(170, 215, 250) : Color.FromArgb(215, 233, 250), 90))
+                {
+                    g.FillPath(br, path);
+                }
+                g.DrawPath(new Pen(_hov ? Color.DodgerBlue : Color.SteelBlue, _hov ? 2 : 1), path);
             }
-            Controls.Add(flow);
+            TextRenderer.DrawText(g, Text, Font, new Rectangle(0, 0, Width, Height), ForeColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        }
+
+        static System.Drawing.Drawing2D.GraphicsPath RoundRect(Rectangle r, int rad)
+        {
+            var p = new System.Drawing.Drawing2D.GraphicsPath();
+            p.AddArc(r.X, r.Y, rad * 2, rad * 2, 180, 90);
+            p.AddArc(r.Right - rad * 2, r.Y, rad * 2, rad * 2, 270, 90);
+            p.AddArc(r.Right - rad * 2, r.Bottom - rad * 2, rad * 2, rad * 2, 0, 90);
+            p.AddArc(r.X, r.Bottom - rad * 2, rad * 2, rad * 2, 90, 90);
+            p.CloseFigure();
+            return p;
+        }
+    }
+
+    public class ClockPanel : Panel
+    {
+        readonly Timer _t = new Timer { Interval = 1000 };
+        readonly Label _dig = new Label { Dock = DockStyle.Bottom, Height = 30, Font = new Font("Tahoma", 11, FontStyle.Bold), ForeColor = Color.SteelBlue, TextAlign = ContentAlignment.MiddleCenter };
+        public ClockPanel()
+        {
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            Controls.Add(_dig);
+            _dig.Text = DateTime.Now.ToString("HH:mm:ss — yyyy/MM/dd");
+            _t.Tick += (s, e) => { _dig.Text = DateTime.Now.ToString("HH:mm:ss — yyyy/MM/dd"); Invalidate(); };
+            _t.Start();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            var availH = Height - 35;
+            var r = Math.Min(Width, availH) - 12;
+            var c = new PointF(Width / 2, availH / 2 + 4);
+            var rect = new Rectangle((int)(c.X - r / 2), (int)(c.Y - r / 2), r, r);
+            g.FillEllipse(Brushes.White, rect);
+            g.DrawEllipse(new Pen(Color.SteelBlue, 2), rect);
+            for (int i = 0; i < 12; i++)
+            {
+                var a = i * Math.PI / 6;
+                g.DrawLine(Pens.SteelBlue,
+                    c.X + (r / 2 - 8) * (float)Math.Sin(a), c.Y - (r / 2 - 8) * (float)Math.Cos(a),
+                    c.X + (r / 2 - 3) * (float)Math.Sin(a), c.Y - (r / 2 - 3) * (float)Math.Cos(a));
+            }
+            var now = DateTime.Now;
+            var ha = (now.Hour % 12 + now.Minute / 60.0) * Math.PI / 6;
+            var ma = now.Minute * Math.PI / 30;
+            var sa = now.Second * Math.PI / 30;
+            g.DrawLine(new Pen(Color.Black, 3), c, new PointF(c.X + (r / 4) * (float)Math.Sin(ha), c.Y - (r / 4) * (float)Math.Cos(ha)));
+            g.DrawLine(new Pen(Color.Black, 2), c, new PointF(c.X + (r / 2 - 12) * (float)Math.Sin(ma), c.Y - (r / 2 - 12) * (float)Math.Cos(ma)));
+            g.DrawLine(new Pen(Color.Red, 1), c, new PointF(c.X + (r / 2 - 8) * (float)Math.Sin(sa), c.Y - (r / 2 - 8) * (float)Math.Cos(sa)));
         }
     }
 
@@ -170,8 +236,7 @@ namespace BalighDesktop
         }
     }
 
-    public class StudentsForm : Form
-          public class MainForm : Form
+    public class MainForm : Form
     {
         public MainForm()
         {
@@ -203,15 +268,8 @@ namespace BalighDesktop
             string[] names = { "ثبت نام", "کارنامه‌ها", "اساتید", "حسابداری", "گزارشات", "مدیریت", "ابزارها" };
             foreach (var n in names)
             {
-                var b = new Button
-                {
-                    Text = n, Width = 125, Height = 68, Margin = new Padding(4),
-                    FlatStyle = FlatStyle.Flat, BackColor = Color.White,
-                    Font = new Font("Tahoma", 10, FontStyle.Bold),
-                    ForeColor = Color.SteelBlue
-                };
-                b.FlatAppearance.BorderColor = Color.SteelBlue;
-                                if (n == "ثبت نام") b.Click += (s, e) => new StudentsForm().Show();
+                var b = new ShineButton { Text = n, Width = 125, Height = 68, Margin = new Padding(4) };
+                if (n == "ثبت نام") b.Click += (s, e) => new StudentsForm().Show();
                 else if (n == "حسابداری") b.Click += (s, e) => new AccountingForm().Show();
                 else if (n == "ابزارها") b.Click += (s, e) => new ToolsForm().Show();
                 else b.Click += (s, e) => MessageBox.Show("این بخش به‌زودی ساخته می‌شود.", n);
@@ -219,13 +277,12 @@ namespace BalighDesktop
             }
 
             var side = new Panel { Dock = DockStyle.Right, Width = 210, BackColor = Color.FromArgb(222, 235, 252), Padding = new Padding(10) };
-            var clock = new ClockPanel { Dock = DockStyle.Bottom, Height = 190 };
+            var clock = new ClockPanel { Dock = DockStyle.Bottom, Height = 220 };
             var sideTitle = new Label { Text = "دسترس سریع", Dock = DockStyle.Top, Height = 40, Font = new Font("Tahoma", 12, FontStyle.Bold), ForeColor = Color.SteelBlue, TextAlign = ContentAlignment.MiddleCenter };
             var sideFlow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false };
-                       foreach (var n in new[] { "گزارشات کلاسی", "برنامه امتحانات", "صدور کارت", "صدور کارنامه" })
+            foreach (var n in new[] { "گزارشات کلاسی", "برنامه امتحانات", "صدور کارت", "صدور کارنامه" })
             {
-                var sb = new Button { Text = n, Width = 180, Height = 45, Margin = new Padding(5), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.SteelBlue };
-                sb.FlatAppearance.BorderColor = Color.LightSteelBlue;
+                var sb = new ShineButton { Text = n, Width = 180, Height = 45, Margin = new Padding(5) };
                 sb.Click += (s, e) => MessageBox.Show("به‌زودی.", n);
                 sideFlow.Controls.Add(sb);
             }
@@ -233,14 +290,19 @@ namespace BalighDesktop
             side.Controls.Add(sideTitle);
             side.Controls.Add(clock);
 
-                       var logo = new LogoPanel { Dock = DockStyle.Fill };
-                Font = new Font("Tahoma", 36, FontStyle.Bold),
-                ForeColor = Color.SteelBlue,
+            var status = new Label
+            {
+                Dock = DockStyle.Bottom, Height = 32,
+                Text = "به آموزشگاه زبان بلیغ خوش آمدید — " + DateTime.Now.ToLongDateString(),
+                ForeColor = Color.SteelBlue, BackColor = Color.FromArgb(214, 230, 250),
                 TextAlign = ContentAlignment.MiddleCenter
             };
 
+            var logo = new LogoPanel { Dock = DockStyle.Fill };
+
             Controls.Add(logo);
             Controls.Add(side);
+            Controls.Add(status);
             Controls.Add(menu);
             Controls.Add(header);
         }
@@ -259,8 +321,7 @@ namespace BalighDesktop
             string[] names = { "امور شهریه (دریافت و پرداخت)", "لیست پرداخت ماهانه", "درآمد", "هزینه‌ها", "حقوق اساتید", "حقوق کارکنان" };
             foreach (var n in names)
             {
-                var b = new Button { Text = n, Width = 180, Height = 60, Margin = new Padding(6), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.SteelBlue, Font = new Font("Tahoma", 10, FontStyle.Bold) };
-                b.FlatAppearance.BorderColor = Color.SteelBlue;
+                var b = new ShineButton { Text = n, Width = 180, Height = 60, Margin = new Padding(6) };
                 if (n.StartsWith("امور شهریه")) b.Click += (s, e) => new FinanceForm().Show();
                 else b.Click += (s, e) => MessageBox.Show("به‌زودی.", n);
                 flow.Controls.Add(b);
@@ -269,41 +330,26 @@ namespace BalighDesktop
         }
     }
 
-    public class ClockPanel : Panel
+    public class ToolsForm : Form
     {
-        readonly Timer _t = new Timer { Interval = 1000 };
-        public ClockPanel()
+        public ToolsForm()
         {
-            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            _t.Tick += (s, e) => Invalidate();
-            _t.Start();
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            var g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            var r = Math.Min(Width, Height) - 12;
-            var rect = new Rectangle((Width - r) / 2, (Height - r) / 2, r, r);
-            g.FillEllipse(Brushes.White, rect);
-            g.DrawEllipse(new Pen(Color.SteelBlue, 2), rect);
-            var c = new PointF(Width / 2, Height / 2);
-            for (int i = 0; i < 12; i++)
+            Text = "ابزارها";
+            Width = 600; Height = 400;
+            RightToLeft = RightToLeft.Yes;
+            Font = new Font("Tahoma", 10);
+            BackColor = Color.FromArgb(235, 243, 254);
+            var flow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.LeftToRight, Padding = new Padding(20) };
+            foreach (var n in new[] { "پشتیبان‌گیری", "بازیابی اطلاعات", "ثبت برنامه", "درباره ما" })
             {
-                var a = i * Math.PI / 6;
-                g.DrawLine(Pens.SteelBlue,
-                    c.X + (r / 2 - 8) * (float)Math.Sin(a), c.Y - (r / 2 - 8) * (float)Math.Cos(a),
-                    c.X + (r / 2 - 3) * (float)Math.Sin(a), c.Y - (r / 2 - 3) * (float)Math.Cos(a));
+                var b = new ShineButton { Text = n, Width = 160, Height = 55, Margin = new Padding(6) };
+                b.Click += (s, e) => MessageBox.Show("به‌زودی.", n);
+                flow.Controls.Add(b);
             }
-            var now = DateTime.Now;
-            var ha = (now.Hour % 12 + now.Minute / 60.0) * Math.PI / 6;
-            var ma = now.Minute * Math.PI / 30;
-            var sa = now.Second * Math.PI / 30;
-            g.DrawLine(new Pen(Color.Black, 3), c, new PointF(c.X + (r / 4) * (float)Math.Sin(ha), c.Y - (r / 4) * (float)Math.Cos(ha)));
-            g.DrawLine(new Pen(Color.Black, 2), c, new PointF(c.X + (r / 2 - 12) * (float)Math.Sin(ma), c.Y - (r / 2 - 12) * (float)Math.Cos(ma)));
-            g.DrawLine(new Pen(Color.Red, 1), c, new PointF(c.X + (r / 2 - 8) * (float)Math.Sin(sa), c.Y - (r / 2 - 8) * (float)Math.Cos(sa)));
+            Controls.Add(flow);
         }
     }
+
     public class StudentsForm : Form
     {
         readonly TextBox tFirst = new TextBox(), tLast = new TextBox(), tFirstEn = new TextBox(), tLastEn = new TextBox(), tMobile = new TextBox();
@@ -330,7 +376,7 @@ namespace BalighDesktop
             put(tLastEn, "Last Name", 320, 55);
             put(tMobile, "موبایل", 640, 15);
 
-            var btnSave = new Button { Text = "ذخیره", Location = new Point(640, 50), Width = 130, BackColor = Color.LightGreen };
+            var btnSave = new ShineButton { Text = "ذخیره", Location = new Point(640, 50), Width = 130, Height = 35 };
             btnSave.Click += async (s, e) =>
             {
                 if (string.IsNullOrWhiteSpace(tFirst.Text) || string.IsNullOrWhiteSpace(tLast.Text)) { MessageBox.Show("نام و نام خانوادگی الزامی است."); return; }
@@ -424,7 +470,7 @@ namespace BalighDesktop
 
             var lCode = new Label { Text = "کد یا نام:", AutoSize = true, Location = new Point(700, 18) };
             tCode.Location = new Point(560, 15); tCode.Width = 130;
-            var btnFind = new Button { Text = "یافتن", Location = new Point(460, 13), Width = 90 };
+            var btnFind = new ShineButton { Text = "یافتن", Location = new Point(460, 13), Width = 90, Height = 30 };
             btnFind.Click += async (s, e) => await FindStudent();
 
             lblName.Text = "نام: -"; lblName.AutoSize = true; lblName.Location = new Point(250, 18);
@@ -453,9 +499,9 @@ namespace BalighDesktop
             lblVoucher.Text = "-"; lblVoucher.AutoSize = true; lblVoucher.Location = new Point(180, 127);
             lblVoucher.Font = new Font("Tahoma", 10, FontStyle.Bold);
 
-            var btnSave = new Button { Text = "ثبت سند", Location = new Point(20, 50), Width = 120, BackColor = Color.LightGreen };
+            var btnSave = new ShineButton { Text = "ثبت سند", Location = new Point(20, 50), Width = 120, Height = 35 };
             btnSave.Click += async (s, e) => await SavePay();
-            var btnPrint = new Button { Text = "چاپ رسید", Location = new Point(20, 90), Width = 120 };
+            var btnPrint = new ShineButton { Text = "چاپ رسید", Location = new Point(20, 95), Width = 120, Height = 35 };
             btnPrint.Click += (s, e) => PrintReceipt();
 
             top.Controls.AddRange(new Control[] { lCode, tCode, btnFind, lblName, lblBalance, lKind, cbKind, lAmount, tAmount, lBank, tBank, lDate, tDate, lReceipt, tReceipt, lVoucher, lblVoucher, btnSave, btnPrint });
