@@ -103,40 +103,85 @@ namespace BalighDesktop
         }
     }
 
-    public class MainForm : Form
+       public class MainForm : Form
     {
         public MainForm()
         {
             Text = "نرم‌افزار مدیریت آموزشگاه بلیغ (۲٫۲)";
-            Width = 950; Height = 620;
+            Width = 1100; Height = 700;
             RightToLeft = RightToLeft.Yes;
             Font = new Font("Tahoma", 10);
             StartPosition = FormStartPosition.CenterScreen;
+            BackColor = Color.FromArgb(235, 243, 254);
 
-            var lbl = new Label
+            var header = new Panel { Dock = DockStyle.Top, Height = 70, BackColor = Color.SteelBlue };
+            var title = new Label
             {
                 Text = "آموزشگاه زبان بلیغ",
-                Font = new Font("Tahoma", 22, FontStyle.Bold),
-                Dock = DockStyle.Top, Height = 80,
-                TextAlign = ContentAlignment.MiddleCenter,
-                BackColor = Color.SteelBlue, ForeColor = Color.White
+                Font = new Font("Tahoma", 20, FontStyle.Bold),
+                ForeColor = Color.White,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter
             };
+            header.Controls.Add(title);
 
-            var panel = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(20) };
-            string[] names = { "ثبت نام", "امور شهریه", "کارنامه", "اساتید", "حسابداری", "گزارشات", "مدیریت", "ابزارها" };
+            var menu = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Top, Height = 95,
+                FlowDirection = FlowDirection.RightToLeft,
+                BackColor = Color.FromArgb(214, 230, 250),
+                Padding = new Padding(10, 12, 10, 5)
+            };
+            string[] names = { "ثبت نام", "امور شهریه", "کارنامه‌ها", "اساتید", "حسابداری", "گزارشات", "مدیریت", "ابزارها" };
             foreach (var n in names)
             {
-                var b = new Button { Text = n, Width = 160, Height = 65, Margin = new Padding(10), Font = new Font("Tahoma", 11, FontStyle.Bold) };
+                var b = new Button
+                {
+                    Text = n, Width = 120, Height = 68, Margin = new Padding(4),
+                    FlatStyle = FlatStyle.Flat, BackColor = Color.White,
+                    Font = new Font("Tahoma", 10, FontStyle.Bold),
+                    ForeColor = Color.SteelBlue
+                };
+                b.FlatAppearance.BorderColor = Color.SteelBlue;
                 if (n == "ثبت نام") b.Click += (s, e) => new StudentsForm().Show();
                 else if (n == "امور شهریه") b.Click += (s, e) => new FinanceForm().Show();
                 else b.Click += (s, e) => MessageBox.Show("این بخش به‌زودی ساخته می‌شود.", n);
-                panel.Controls.Add(b);
+                menu.Controls.Add(b);
             }
-            Controls.Add(panel);
-            Controls.Add(lbl);
+
+            var side = new Panel { Dock = DockStyle.Right, Width = 210, BackColor = Color.FromArgb(222, 235, 252), Padding = new Padding(10) };
+            var clock = new Label { Dock = DockStyle.Bottom, Height = 60, Font = new Font("Tahoma", 14, FontStyle.Bold), TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.SteelBlue };
+            var timer = new Timer { Interval = 1000 };
+            timer.Tick += (s, e) => clock.Text = DateTime.Now.ToString("HH:mm:ss");
+            timer.Start();
+            var sideTitle = new Label { Text = "دسترس سریع", Dock = DockStyle.Top, Height = 40, Font = new Font("Tahoma", 12, FontStyle.Bold), ForeColor = Color.SteelBlue, TextAlign = ContentAlignment.MiddleCenter };
+            var sideFlow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false };
+            foreach (var n in new[] { "گزارشات کلاسی", "برنامه امتحانات", "برنامه اساتید", "صدور کارت" })
+            {
+                var sb = new Button { Text = n, Width = 180, Height = 45, Margin = new Padding(5), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.SteelBlue };
+                sb.FlatAppearance.BorderColor = Color.LightSteelBlue;
+                sb.Click += (s, e) => MessageBox.Show("به‌زودی.", n);
+                sideFlow.Controls.Add(sb);
+            }
+            side.Controls.Add(sideFlow);
+            side.Controls.Add(sideTitle);
+            side.Controls.Add(clock);
+
+            var logo = new Label
+            {
+                Text = "Baligh\nآموزشگاه زبان بلیغ",
+                Dock = DockStyle.Fill,
+                Font = new Font("Tahoma", 36, FontStyle.Bold),
+                ForeColor = Color.SteelBlue,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+
+            Controls.Add(logo);
+            Controls.Add(side);
+            Controls.Add(menu);
+            Controls.Add(header);
         }
     }
-
     public class StudentsForm : Form
     {
         readonly TextBox tFirst = new TextBox(), tLast = new TextBox(), tFirstEn = new TextBox(), tLastEn = new TextBox(), tMobile = new TextBox();
