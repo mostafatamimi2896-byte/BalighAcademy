@@ -66,7 +66,25 @@ namespace BalighDesktop
         public string Bank { get; set; } = "";
         public string Note { get; set; } = "";
     }
+    public class EnrollmentDto
+    {
+        public int Id { get; set; }
+        public int StudentId { get; set; }
+        public int TermId { get; set; }
+        public string ClassName { get; set; } = "";
+        public string Level { get; set; } = "";
+        public string Result { get; set; } = "در حال برگزاری / Ongoing";
+        public double Score { get; set; }
+    }
 
+    public class TermDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string StartDate { get; set; } = "";
+        public string EndDate { get; set; } = "";
+        public bool IsCurrent { get; set; }
+    }
     static class Api
     {
         static readonly JsonSerializerOptions O = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
