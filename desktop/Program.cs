@@ -119,6 +119,23 @@ namespace BalighDesktop
             var body = new StringContent(JsonSerializer.Serialize(p), Encoding.UTF8, "application/json");
             await Program.Http.PostAsync(Program.ApiBase + $"/api/students/{id}/payments", body);
         }
+                public static async Task UpdateStudent(StudentDto s)
+        {
+            var body = new StringContent(JsonSerializer.Serialize(s), Encoding.UTF8, "application/json");
+            await Program.Http.PutAsync(Program.ApiBase + $"/api/students/{s.Id}", body);
+        }
+
+        public static async Task<List<EnrollmentDto>> GetEnrollments(int id)
+        {
+            var json = await Program.Http.GetStringAsync(Program.ApiBase + $"/api/students/{id}/enrollments");
+            return JsonSerializer.Deserialize<List<EnrollmentDto>>(json, O) ?? new List<EnrollmentDto>();
+        }
+
+        public static async Task<List<TermDto>> GetTerms()
+        {
+            var json = await Program.Http.GetStringAsync(Program.ApiBase + "/api/terms");
+            return JsonSerializer.Deserialize<List<TermDto>>(json, O) ?? new List<TermDto>();
+        }
     }
 
     public class ShineButton : Button
