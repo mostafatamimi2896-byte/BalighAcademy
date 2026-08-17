@@ -16,10 +16,11 @@ namespace BalighDesktop
         public static readonly string ApiBase = "https://baligh-api-hyg4.onrender.com";
         public static readonly HttpClient Http = new HttpClient();
 
-        [STAThread]
+               [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
+            Application.EnableVisualStyles(); 
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
         }
@@ -89,11 +90,20 @@ namespace BalighDesktop
     {
         static readonly JsonSerializerOptions O = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-        public static async Task<List<StudentDto>> GetStudents(string q = "")
+               public static async Task<List<StudentDto>> GetStudents(string q = "")
         {
             var url = Program.ApiBase + "/api/students" + (string.IsNullOrWhiteSpace(q) ? "" : "?q=" + Uri.EscapeDataString(q));
-            var json = await Program.Http.GetStringAsync(url);
-            return JsonSerializer.Deserialize<List<StudentDto>>(json, O) ?? new List<StudentDto>();
+            try
+            {
+                var json = await Program.Http.GetStringAsync(url);
+                return JsonSerializer.Deserialize<List<StudentDto>>(json, O) ?? new List<StudentDto>();
+            }
+            catch
+            {
+                await Task.Delay(5000);
+                var json = await Program.Http.GetStringAsync(url);
+                return JsonSerializer.Deserialize<List<StudentDto>>(json, O) ?? new List<StudentDto>();
+            }
         }
 
         public static async Task SaveStudent(StudentDto s)
