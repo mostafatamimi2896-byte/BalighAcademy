@@ -5,11 +5,11 @@
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 
-<PageTitle>پروفایل زبان‌آموز | Student Profile</PageTitle>
+<PageTitle>پروفایل زبان‌آموز</PageTitle>
 
 @if (_student is null)
 {
-    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    <MudAlert Severity="Severity.Info">در حال بارگذاری... / Loading...</MudAlert>
 }
 else
 {
@@ -17,11 +17,11 @@ else
     {
         @if (_finance.Debtor)
         {
-            <MudAlert Severity="Severity.Error" Class="mb-4">بدهکار / Debtor: @_finance.Balance.ToString("#,0") تومان</MudAlert>
+            <MudAlert Severity="Severity.Error" Class="mb-4">بدهکار: @_finance.Balance.ToString("#,0") تومان</MudAlert>
         }
         else
         {
-            <MudAlert Severity="Severity.Success" Class="mb-4">تسویه / Settled — مانده: ۰ ✔</MudAlert>
+            <MudAlert Severity="Severity.Success" Class="mb-4">تسویه — مانده: ۰ ✔</MudAlert>
         }
     }
 
@@ -36,8 +36,9 @@ else
                 </MudAvatar>
             </MudItem>
             <MudItem xs="12" sm="10">
-                <MudText Typo="Typo.h5">@_student.FirstName @_student.LastName — @_student.FirstNameEn @_student.LastNameEn</MudText>
-                <MudText Typo="Typo.body2" Class="mb-2">کد / Code: <b>@_student.StudentCode</b></MudText>
+                <MudText Typo="Typo.h5">@_student.FirstName @_student.LastName</MudText>
+                <MudText Typo="Typo.body1" Style="direction:ltr; text-align:right" Class="mb-2">@_student.FirstNameEn @_student.LastNameEn</MudText>
+                <MudText Typo="Typo.body2" Class="mb-2">کد: <b>@_student.StudentCode</b></MudText>
                 <MudChipSet>
                     <MudChip Color="Color.Info">@_student.QuotaType</MudChip>
                     <MudChip Color="@(_student.Status.StartsWith("فعال") ? Color.Success : Color.Warning)">@_student.Status</MudChip>
@@ -45,47 +46,50 @@ else
                     @if (!string.IsNullOrEmpty(_student.Mobile)) { <MudChip>@_student.Mobile</MudChip> }
                 </MudChipSet>
                 <MudFileUpload T="IBrowserFile" FilesSelected="OnPhoto" Class="mt-2">
-                    <MudButton Size="Size.Small" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.PhotoCamera">آپلود عکس / Upload Photo</MudButton>
+                    <MudButton Size="Size.Small" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.PhotoCamera">آپلود عکس</MudButton>
                 </MudFileUpload>
             </MudItem>
         </MudGrid>
         <MudDivider Class="my-3" />
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Print" StartIcon="@Icons.Material.Filled.Print">چاپ ثبت‌نام / Print</MudButton>
-        <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="Deactivate" Class="mx-2">غیرفعال‌سازی / Deactivate</MudButton>
-        <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="DeleteStudent">@(_confirmDelete ? "مطمئنی؟ کلیک دوم = حذف / Sure?" : "حذف کامل / Delete")</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Print" StartIcon="@Icons.Material.Filled.Print">چاپ ثبت‌نام</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="Deactivate" Class="mx-2">غیرفعال‌سازی</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="DeleteStudent">@(_confirmDelete ? "مطمئنی؟ کلیک دوم = حذف" : "حذف کامل")</MudButton>
     </MudPaper>
 
     <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" Class="pa-2">
-        <MudTabPanel Text="تر‌م‌ها / Terms">
-            <MudGrid Spacing="3" Class="mb-3">
-                <MudItem xs="12" sm="3"><MudTextField @bind-Value="_newTerm.Name" Label="نام ترم جدید / New Term (مثلاً پاییز ۱۴۴)" /></MudItem>
-                <MudItem xs="12" sm="2" Class="d-flex align-end"><MudButton OnClick="AddTerm" Variant="Variant.Outlined">ساخت ترم / Create Term</MudButton></MudItem>
-            </MudGrid>
-            <MudGrid Spacing="3" Class="mb-3">
-                <MudItem xs="12" sm="3">
-                    <MudSelect @bind-Value="_newEnr.TermId" Label="تر‌م / Term">
-                        @foreach (var t in _terms)
-                        {
-                            <MudSelectItem T="int" Value="@t.Id">@t.Name</MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
-                <MudItem xs="12" sm="3"><MudTextField @bind-Value="_newEnr.ClassName" Label="کلاس / Class" /></MudItem>
-                <MudItem xs="12" sm="2"><MudTextField @bind-Value="_newEnr.Level" Label="سطح / Level" /></MudItem>
-                <MudItem xs="12" sm="2">
-                    <MudSelect @bind-Value="_newEnr.Result" Label="نتیجه / Result">
-                        <MudSelectItem Value="@("در حال برگزاری / Ongoing")">در حال برگزاری / Ongoing</MudSelectItem>
-                        <MudSelectItem Value="@("قبول / Passed")">قبول / Passed</MudSelectItem>
-                        <MudSelectItem Value="@("مردود / Failed")">مردود / Failed</MudSelectItem>
-                    </MudSelect>
-                </MudItem>
-                <MudItem xs="12" sm="2" Class="d-flex align-end">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddEnr">افزودن به ترم / Enroll</MudButton>
-                </MudItem>
-            </MudGrid>
+        <MudTabPanel Text="ترم‌ها">
+            @if (_terms.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info">ترم‌ها در بخش «مدیریت» تعریف می‌شوند. هنوز ترمی ثبت نشده است.</MudAlert>
+            }
+            else
+            {
+                <MudGrid Spacing="3" Class="mb-3">
+                    <MudItem xs="12" sm="3">
+                        <MudSelect @bind-Value="_newEnr.TermId" Label="ترم">
+                            @foreach (var t in _terms)
+                            {
+                                <MudSelectItem T="int" Value="@t.Id">@t.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="3"><MudTextField @bind-Value="_newEnr.ClassName" Label="کلاس" /></MudItem>
+                    <MudItem xs="12" sm="2"><MudTextField @bind-Value="_newEnr.Level" Label="سطح" /></MudItem>
+                    <MudItem xs="12" sm="2">
+                        <MudSelect @bind-Value="_newEnr.Result" Label="نتیجه">
+                            <MudSelectItem Value="@("در حال برگزاری / Ongoing")">در حال برگزاری / Ongoing</MudSelectItem>
+                            <MudSelectItem Value="@("قبول / Passed")">قبول / Passed</MudSelectItem>
+                            <MudSelectItem Value="@("مردود / Failed")">مردود / Failed</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="2" Class="d-flex align-end">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddEnr">ثبت در ترم</MudButton>
+                    </MudItem>
+                </MudGrid>
+            }
             <MudTable Items="_enrs" Striped="true" Hover="true">
                 <HeaderContent>
-                    <MudTh>تر‌م / Term</MudTh><MudTh>کلاس / Class</MudTh><MudTh>سطح / Level</MudTh><MudTh>نتیجه / Result</MudTh><MudTh></MudTh>
+                    <MudTh>ترم</MudTh><MudTh>کلاس</MudTh><MudTh>سطح</MudTh><MudTh>نتیجه</MudTh><MudTh></MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@TermName(context.TermId)</MudTd>
@@ -97,37 +101,40 @@ else
             </MudTable>
         </MudTabPanel>
 
-        <MudTabPanel Text="مالی / Finance">
+        <MudTabPanel Text="مالی">
             <MudGrid Spacing="3" Class="mb-3">
-                <MudItem xs="12" sm="2"><MudTextField @bind-Value="_newPay.Date" Label="تاریخ / Date" /></MudItem>
-                <MudItem xs="12" sm="3">
-                    <MudSelect @bind-Value="_newPay.Kind" Label="نوع / Kind">
+                <MudItem xs="12" sm="2"><MudTextField @bind-Value="_newPay.Date" Label="تاریخ" /></MudItem>
+                <MudItem xs="12" sm="2">
+                    <MudSelect @bind-Value="_newPay.Kind" Label="نوع">
                         <MudSelectItem Value="@("شهریه / Tuition")">شهریه / Tuition</MudSelectItem>
                         <MudSelectItem Value="@("پرداخت / Payment")">پرداخت / Payment</MudSelectItem>
                         <MudSelectItem Value="@("تخفیف / Discount")">تخفیف / Discount</MudSelectItem>
                     </MudSelect>
                 </MudItem>
-                <MudItem xs="12" sm="3"><MudTextField @bind-Value="_newPay.Amount" Label="مبلغ (تومان) / Amount" /></MudItem>
-                <MudItem xs="12" sm="2"><MudTextField @bind-Value="_newPay.Note" Label="یادداشت / Note" /></MudItem>
+                <MudItem xs="12" sm="2"><MudTextField @bind-Value="_newPay.Amount" Label="مبلغ (تومان)" /></MudItem>
+                <MudItem xs="12" sm="2"><MudTextField @bind-Value="_newPay.Bank" Label="بانک" /></MudItem>
+                <MudItem xs="12" sm="2"><MudTextField @bind-Value="_newPay.ReceiptNo" Label="شماره رسید" /></MudItem>
                 <MudItem xs="12" sm="2" Class="d-flex align-end">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddPay">افزودن / Add</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddPay">افزودن</MudButton>
                 </MudItem>
             </MudGrid>
             <MudTable Items="_pays" Striped="true" Hover="true">
                 <HeaderContent>
-                    <MudTh>تاریخ / Date</MudTh><MudTh>نوع / Kind</MudTh><MudTh>مبلغ / Amount</MudTh><MudTh>یادداشت / Note</MudTh><MudTh></MudTh>
+                    <MudTh>شمارهٔ سند</MudTh><MudTh>رسید</MudTh><MudTh>تاریخ</MudTh><MudTh>نوع</MudTh><MudTh>مبلغ</MudTh><MudTh>بانک</MudTh><MudTh></MudTh>
                 </HeaderContent>
                 <RowTemplate>
+                    <MudTd>@context.VoucherNo</MudTd>
+                    <MudTd>@context.ReceiptNo</MudTd>
                     <MudTd>@context.Date</MudTd>
                     <MudTd>@context.Kind</MudTd>
                     <MudTd>@context.Amount.ToString("#,0")</MudTd>
-                    <MudTd>@context.Note</MudTd>
+                    <MudTd>@context.Bank</MudTd>
                     <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DelPay(context.Id))" /></MudTd>
                 </RowTemplate>
             </MudTable>
         </MudTabPanel>
 
-        <MudTabPanel Text="یادداشت‌ها / Notes">
+        <MudTabPanel Text="یادداشت‌ها">
             <MudText>@_student.Notes</MudText>
         </MudTabPanel>
     </MudTabs>
@@ -141,7 +148,6 @@ else
     private List<EnrollmentDto> _enrs = new();
     private List<PaymentDto> _pays = new();
     private List<TermDto> _terms = new();
-    private TermDto _newTerm = new();
     private EnrollmentDto _newEnr = new();
     private PaymentDto _newPay = new();
     private bool _confirmDelete;
@@ -150,16 +156,19 @@ else
 
     private async Task LoadAll()
     {
-        _student = await Svc.GetOne(Id);
-        _finance = await Svc.GetFinance(Id);
-        _enrs = await Svc.GetEnrollments(Id);
-        _pays = await Svc.GetPayments(Id);
-        _terms = await Svc.GetTerms();
+        try
+        {
+            _student = await Svc.GetOne(Id);
+            _finance = await Svc.GetFinance(Id);
+            _enrs = await Svc.GetEnrollments(Id);
+            _pays = await Svc.GetPayments(Id);
+            _terms = await Svc.GetTerms();
+        }
+        catch { }
     }
 
     private string TermName(int id) => _terms.FirstOrDefault(t => t.Id == id)?.Name ?? "-";
 
-    private async Task AddTerm() { await Svc.CreateTerm(_newTerm); _newTerm = new(); await LoadAll(); }
     private async Task AddEnr() { await Svc.CreateEnrollment(Id, _newEnr); _newEnr = new(); await LoadAll(); }
     private async Task DelEnr(int id) { await Svc.DeleteEnrollment(id); await LoadAll(); }
     private async Task AddPay() { await Svc.CreatePayment(Id, _newPay); _newPay = new(); await LoadAll(); }
