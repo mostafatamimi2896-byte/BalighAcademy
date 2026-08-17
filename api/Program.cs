@@ -242,8 +242,11 @@ public class Payment
 {
     public int Id { get; set; }
     public int StudentId { get; set; }
+    public int VoucherNo { get; set; }
+    public string ReceiptNo { get; set; } = "";
     public string Date { get; set; } = "";
     public long Amount { get; set; }
     public string Kind { get; set; } = "شهریه / Tuition";
+    public string Bank { get; set; } = "";
     public string Note { get; set; } = "";
 }
