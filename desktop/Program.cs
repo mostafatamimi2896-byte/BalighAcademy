@@ -81,7 +81,7 @@ namespace BalighDesktop
     {
         public MainForm()
         {
-            Text = "نرم‌افزار مدیریت آموزشگاه بالیغ (۲٫۲)";
+            Text = "نرم‌افزار مدیریت آموزشگاه بلیغ (۲٫۲)";
             Width = 950; Height = 620;
             RightToLeft = RightToLeft.Yes;
             Font = new Font("Tahoma", 10);
