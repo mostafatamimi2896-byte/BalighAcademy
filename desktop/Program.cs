@@ -95,7 +95,7 @@ namespace BalighDesktop
                 TextAlign = ContentAlignment.MiddleCenter,
                 BackColor = Color.SteelBlue, ForeColor = Color.White
             };
-            Controls.Add(lbl);
+            
 
             var panel = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(20) };
             string[] names = { "ثبت نام", "امور شهریه", "کارنامه", "اساتید", "حسابداری", "گزارشات", "مدیریت", "ابزارها" };
@@ -106,11 +106,12 @@ namespace BalighDesktop
                 else b.Click += (s, e) => MessageBox.Show("این بخش به‌زودی ساخته می‌شود.", n);
                 panel.Controls.Add(b);
             }
-            Controls.Add(panel);
+                     Controls.Add(panel);
+            Controls.Add(lbl);
         }
     }
 
-    public class StudentsForm : Form
+    public class StudentsForm
     {
         readonly TextBox tFirst = new TextBox(), tLast = new TextBox(), tFirstEn = new TextBox(), tLastEn = new TextBox(), tMobile = new TextBox();
         readonly TextBox tSearch = new TextBox();
