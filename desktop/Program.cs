@@ -103,7 +103,7 @@ namespace BalighDesktop
         }
     }
 
-       public class MainForm : Form
+          public class MainForm : Form
     {
         public MainForm()
         {
@@ -128,35 +128,32 @@ namespace BalighDesktop
             var menu = new FlowLayoutPanel
             {
                 Dock = DockStyle.Top, Height = 95,
-                FlowDirection = FlowDirection.RightToLeft,
+                FlowDirection = FlowDirection.LeftToRight,
                 BackColor = Color.FromArgb(214, 230, 250),
                 Padding = new Padding(10, 12, 10, 5)
             };
-            string[] names = { "ثبت نام", "امور شهریه", "کارنامه‌ها", "اساتید", "حسابداری", "گزارشات", "مدیریت", "ابزارها" };
+            string[] names = { "ثبت نام", "کارنامه‌ها", "اساتید", "حسابداری", "گزارشات", "مدیریت", "ابزارها" };
             foreach (var n in names)
             {
                 var b = new Button
                 {
-                    Text = n, Width = 120, Height = 68, Margin = new Padding(4),
+                    Text = n, Width = 125, Height = 68, Margin = new Padding(4),
                     FlatStyle = FlatStyle.Flat, BackColor = Color.White,
                     Font = new Font("Tahoma", 10, FontStyle.Bold),
                     ForeColor = Color.SteelBlue
                 };
                 b.FlatAppearance.BorderColor = Color.SteelBlue;
                 if (n == "ثبت نام") b.Click += (s, e) => new StudentsForm().Show();
-                else if (n == "امور شهریه") b.Click += (s, e) => new FinanceForm().Show();
+                else if (n == "حسابداری") b.Click += (s, e) => new AccountingForm().Show();
                 else b.Click += (s, e) => MessageBox.Show("این بخش به‌زودی ساخته می‌شود.", n);
                 menu.Controls.Add(b);
             }
 
             var side = new Panel { Dock = DockStyle.Right, Width = 210, BackColor = Color.FromArgb(222, 235, 252), Padding = new Padding(10) };
-            var clock = new Label { Dock = DockStyle.Bottom, Height = 60, Font = new Font("Tahoma", 14, FontStyle.Bold), TextAlign = ContentAlignment.MiddleCenter, ForeColor = Color.SteelBlue };
-            var timer = new Timer { Interval = 1000 };
-            timer.Tick += (s, e) => clock.Text = DateTime.Now.ToString("HH:mm:ss");
-            timer.Start();
+            var clock = new ClockPanel { Dock = DockStyle.Bottom, Height = 190 };
             var sideTitle = new Label { Text = "دسترس سریع", Dock = DockStyle.Top, Height = 40, Font = new Font("Tahoma", 12, FontStyle.Bold), ForeColor = Color.SteelBlue, TextAlign = ContentAlignment.MiddleCenter };
             var sideFlow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false };
-            foreach (var n in new[] { "گزارشات کلاسی", "برنامه امتحانات", "برنامه اساتید", "صدور کارت" })
+            foreach (var n in new[] { "گزارشات کلاسی", "برنامه امتحانات", "صدور کارت", "پشتیبان‌گیری" })
             {
                 var sb = new Button { Text = n, Width = 180, Height = 45, Margin = new Padding(5), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.SteelBlue };
                 sb.FlatAppearance.BorderColor = Color.LightSteelBlue;
@@ -180,6 +177,65 @@ namespace BalighDesktop
             Controls.Add(side);
             Controls.Add(menu);
             Controls.Add(header);
+        }
+    }
+
+    public class AccountingForm : Form
+    {
+        public AccountingForm()
+        {
+            Text = "حسابداری";
+            Width = 650; Height = 420;
+            RightToLeft = RightToLeft.Yes;
+            Font = new Font("Tahoma", 10);
+            BackColor = Color.FromArgb(235, 243, 254);
+            var flow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.LeftToRight, Padding = new Padding(20) };
+            string[] names = { "امور شهریه (دریافت و پرداخت)", "لیست پرداخت ماهانه", "درآمد", "هزینه‌ها", "حقوق اساتید", "حقوق کارکنان" };
+            foreach (var n in names)
+            {
+                var b = new Button { Text = n, Width = 180, Height = 60, Margin = new Padding(6), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.SteelBlue, Font = new Font("Tahoma", 10, FontStyle.Bold) };
+                b.FlatAppearance.BorderColor = Color.SteelBlue;
+                if (n.StartsWith("امور شهریه")) b.Click += (s, e) => new FinanceForm().Show();
+                else b.Click += (s, e) => MessageBox.Show("به‌زودی.", n);
+                flow.Controls.Add(b);
+            }
+            Controls.Add(flow);
+        }
+    }
+
+    public class ClockPanel : Panel
+    {
+        readonly Timer _t = new Timer { Interval = 1000 };
+        public ClockPanel()
+        {
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            _t.Tick += (s, e) => Invalidate();
+            _t.Start();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            var r = Math.Min(Width, Height) - 12;
+            var rect = new Rectangle((Width - r) / 2, (Height - r) / 2, r, r);
+            g.FillEllipse(Brushes.White, rect);
+            g.DrawEllipse(new Pen(Color.SteelBlue, 2), rect);
+            var c = new PointF(Width / 2, Height / 2);
+            for (int i = 0; i < 12; i++)
+            {
+                var a = i * Math.PI / 6;
+                g.DrawLine(Pens.SteelBlue,
+                    c.X + (r / 2 - 8) * (float)Math.Sin(a), c.Y - (r / 2 - 8) * (float)Math.Cos(a),
+                    c.X + (r / 2 - 3) * (float)Math.Sin(a), c.Y - (r / 2 - 3) * (float)Math.Cos(a));
+            }
+            var now = DateTime.Now;
+            var ha = (now.Hour % 12 + now.Minute / 60.0) * Math.PI / 6;
+            var ma = now.Minute * Math.PI / 30;
+            var sa = now.Second * Math.PI / 30;
+            g.DrawLine(new Pen(Color.Black, 3), c, new PointF(c.X + (r / 4) * (float)Math.Sin(ha), c.Y - (r / 4) * (float)Math.Cos(ha)));
+            g.DrawLine(new Pen(Color.Black, 2), c, new PointF(c.X + (r / 2 - 12) * (float)Math.Sin(ma), c.Y - (r / 2 - 12) * (float)Math.Cos(ma)));
+            g.DrawLine(new Pen(Color.Red, 1), c, new PointF(c.X + (r / 2 - 8) * (float)Math.Sin(sa), c.Y - (r / 2 - 8) * (float)Math.Cos(sa)));
         }
     }
     public class StudentsForm : Form
