@@ -102,7 +102,75 @@ namespace BalighDesktop
             await Program.Http.PostAsync(Program.ApiBase + $"/api/students/{id}/payments", body);
         }
     }
+    public class ToolsForm : Form
+    {
+        public ToolsForm()
+        {
+            Text = "ابزارها";
+            Width = 600; Height = 400;
+            RightToLeft = RightToLeft.Yes;
+            Font = new Font("Tahoma", 10);
+            BackColor = Color.FromArgb(235, 243, 254);
+            var flow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.LeftToRight, Padding = new Padding(20) };
+            foreach (var n in new[] { "پشتیبان‌گیری", "بازیابی اطلاعات", "ثبت برنامه", "درباره ما" })
+            {
+                var b = new Button { Text = n, Width = 160, Height = 55, Margin = new Padding(6), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.SteelBlue, Font = new Font("Tahoma", 10, FontStyle.Bold) };
+                b.FlatAppearance.BorderColor = Color.SteelBlue;
+                b.Click += (s, e) => MessageBox.Show("به‌زودی.", n);
+                flow.Controls.Add(b);
+            }
+            Controls.Add(flow);
+        }
+    }
 
+    public class LogoPanel : Panel
+    {
+        Image _img;
+        public LogoPanel()
+        {
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            Task.Run(async () =>
+            {
+                foreach (var u in new[] { "https://balighacademy.onrender.com/images/logo.png", "https://balighacademy.onrender.com/logo.png" })
+                {
+                    try
+                    {
+                        var s = await Program.Http.GetStreamAsync(u);
+                        _img = Image.FromStream(s);
+                        if (_img != null) break;
+                    }
+                    catch { }
+                }
+                try { Invoke(new Action(Invalidate)); } catch { }
+            });
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            if (_img != null)
+            {
+                var h = Math.Min(Height - 60, _img.Height * 2);
+                var w = _img.Width * h / _img.Height;
+                g.DrawImage(_img, (Width - w) / 2, 30, w, h);
+            }
+            else
+            {
+                var rw = Math.Min(Width / 2, 500);
+                var rh = rw / 2;
+                var rect = new Rectangle((Width - rw) / 2, 50, rw, rh);
+                using (var brush = new System.Drawing.Drawing2D.LinearGradientBrush(rect, Color.FromArgb(30, 144, 255), Color.FromArgb(0, 80, 160), 90))
+                {
+                    g.FillEllipse(brush, rect);
+                }
+                g.DrawString("Baligh", new Font("Tahoma", 44, FontStyle.Bold | FontStyle.Italic), Brushes.White, new PointF(Width / 2 - 100, 70));
+            }
+            g.DrawString("آموزشگاه زبان بلیغ", new Font("Tahoma", 16, FontStyle.Bold), Brushes.SteelBlue, new PointF(Width / 2 - 80, Height - 60));
+        }
+    }
+
+    public class StudentsForm : Form
           public class MainForm : Form
     {
         public MainForm()
@@ -143,8 +211,9 @@ namespace BalighDesktop
                     ForeColor = Color.SteelBlue
                 };
                 b.FlatAppearance.BorderColor = Color.SteelBlue;
-                if (n == "ثبت نام") b.Click += (s, e) => new StudentsForm().Show();
+                                if (n == "ثبت نام") b.Click += (s, e) => new StudentsForm().Show();
                 else if (n == "حسابداری") b.Click += (s, e) => new AccountingForm().Show();
+                else if (n == "ابزارها") b.Click += (s, e) => new ToolsForm().Show();
                 else b.Click += (s, e) => MessageBox.Show("این بخش به‌زودی ساخته می‌شود.", n);
                 menu.Controls.Add(b);
             }
@@ -153,7 +222,7 @@ namespace BalighDesktop
             var clock = new ClockPanel { Dock = DockStyle.Bottom, Height = 190 };
             var sideTitle = new Label { Text = "دسترس سریع", Dock = DockStyle.Top, Height = 40, Font = new Font("Tahoma", 12, FontStyle.Bold), ForeColor = Color.SteelBlue, TextAlign = ContentAlignment.MiddleCenter };
             var sideFlow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false };
-            foreach (var n in new[] { "گزارشات کلاسی", "برنامه امتحانات", "صدور کارت", "پشتیبان‌گیری" })
+                       foreach (var n in new[] { "گزارشات کلاسی", "برنامه امتحانات", "صدور کارت", "صدور کارنامه" })
             {
                 var sb = new Button { Text = n, Width = 180, Height = 45, Margin = new Padding(5), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.SteelBlue };
                 sb.FlatAppearance.BorderColor = Color.LightSteelBlue;
@@ -164,10 +233,7 @@ namespace BalighDesktop
             side.Controls.Add(sideTitle);
             side.Controls.Add(clock);
 
-            var logo = new Label
-            {
-                Text = "Baligh\nآموزشگاه زبان بلیغ",
-                Dock = DockStyle.Fill,
+                       var logo = new LogoPanel { Dock = DockStyle.Fill };
                 Font = new Font("Tahoma", 36, FontStyle.Bold),
                 ForeColor = Color.SteelBlue,
                 TextAlign = ContentAlignment.MiddleCenter
