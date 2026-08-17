@@ -89,7 +89,7 @@ namespace BalighDesktop
 
             var lbl = new Label
             {
-                Text = "آموزشگاه زبان بالیغ",
+                  Text = "آموزشگاه زبان بلیغ",
                 Font = new Font("Tahoma", 22, FontStyle.Bold),
                 Dock = DockStyle.Top, Height = 80,
                 TextAlign = ContentAlignment.MiddleCenter,
